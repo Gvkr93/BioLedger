@@ -8,7 +8,11 @@ contract BioLedger is AccessControl {
     bytes32 public constant TRANSPORTER_ROLE = keccak256("TRANSPORTER_ROLE");
     bytes32 public constant DISPOSAL_FACILITY_ROLE = keccak256("DISPOSAL_FACILITY_ROLE");
 
-    enum WasteStatus { GENERATED, IN_TRANSIT, DISPOSED }
+    enum WasteStatus {
+        GENERATED,
+        IN_TRANSIT,
+        DISPOSED
+    }
 
     struct WasteBag {
         uint256 bagId;
@@ -40,7 +44,11 @@ contract BioLedger is AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
     }
 
-    function registerWaste(uint256 weightInitial, string calldata ipfsHash) external onlyRole(HOSPITAL_ROLE) returns (uint256) {
+    function registerWaste(uint256 weightInitial, string calldata ipfsHash)
+        external
+        onlyRole(HOSPITAL_ROLE)
+        returns (uint256)
+    {
         if (weightInitial == 0) revert InvalidWeight();
         if (bytes(ipfsHash).length == 0) revert EmptyIPFSHash();
 
@@ -83,7 +91,8 @@ contract BioLedger is AccessControl {
         bag.finalWeight = weightFinal;
         bag.status = WasteStatus.DISPOSED;
 
-        uint256 weightDifference = bag.initialWeight > weightFinal ? bag.initialWeight - weightFinal : weightFinal - bag.initialWeight;
+        uint256 weightDifference =
+            bag.initialWeight > weightFinal ? bag.initialWeight - weightFinal : weightFinal - bag.initialWeight;
         uint256 allowableDeviation = (bag.initialWeight * weightTolerancePercent) / 100;
 
         if (weightDifference > allowableDeviation) {

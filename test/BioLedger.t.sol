@@ -6,7 +6,7 @@ import {BioLedger} from "../src/BioLedger.sol";
 
 contract BioLedgerTest is Test {
     BioLedger public bioLedger;
-    
+
     // Mock addresses for simulation
     address admin = address(1);
     address hospital = address(2);
@@ -29,11 +29,11 @@ contract BioLedgerTest is Test {
     function testRegisterWaste() public {
         vm.prank(hospital);
         uint256 bagId = bioLedger.registerWaste(1000, "QmTestHash123");
-        
+
         BioLedger.WasteBag memory bag = bioLedger.getWasteBag(bagId);
         assertEq(bag.initialWeight, 1000);
         assertEq(bag.ipfsHash, "QmTestHash123");
-        assertEq(uint(bag.status), uint(BioLedger.WasteStatus.GENERATED));
+        assertEq(uint256(bag.status), uint256(BioLedger.WasteStatus.GENERATED));
     }
 
     function testLifecycleAndDiscrepancy() public {
@@ -44,16 +44,16 @@ contract BioLedgerTest is Test {
         // 2. Transporter picks it up
         vm.prank(transporter);
         bioLedger.transferCustody(bagId);
-        
+
         BioLedger.WasteBag memory bagTransit = bioLedger.getWasteBag(bagId);
-        assertEq(uint(bagTransit.status), uint(BioLedger.WasteStatus.IN_TRANSIT));
+        assertEq(uint256(bagTransit.status), uint256(BioLedger.WasteStatus.IN_TRANSIT));
 
         // 3. Disposal facility confirms (simulating a 10% weight loss - triggers flag)
         vm.prank(disposal);
-        bioLedger.confirmDisposal(bagId, 900); 
+        bioLedger.confirmDisposal(bagId, 900);
 
         BioLedger.WasteBag memory bagDisposed = bioLedger.getWasteBag(bagId);
-        assertEq(uint(bagDisposed.status), uint(BioLedger.WasteStatus.DISPOSED));
+        assertEq(uint256(bagDisposed.status), uint256(BioLedger.WasteStatus.DISPOSED));
         assertTrue(bagDisposed.isDiscrepancyFlagged); // 100g diff > 50g tolerance
     }
 }
